@@ -6,28 +6,36 @@ Date: Feb 26, 2018
  */
 
 #include <xc.h> // required for pic32 devices
-#include "usart.h" // add file to folder
-
-/* set appropriate config bits
-#pragma config OSC = INTIO1;    // set OSCTUN // calibrate via register values 
-#pragma config FCMEN = OFF      // Fail-Safe Clock Monitor Enable bit (Fail-Safe Clock Monitor disabled)
-#pragma config POSC = OFF;    	// Primary Oscillator (External RC oscillator)
-#pragma config SOSC = OFF;      // Secondary oscillator - may be used as aux clock for gps
-// May enable RTCC - real time clock as an additional feature for consumers
-#pragma config RTCC = OFF; 		//figure out RTCC
- */ 
 
 // determine how to enable only a few analog inputs
 #pragma config AN01 = ON;	// GSR input
 //#pragma config AN02 = ON;	// Battery monitor voltage?
 #pragma config AN03 = ON;	// 
-// digital input ports
-#pragma config RA0 = ;
 
-__config    _CONFIG1, _DEBUG_OFF & _LVP_OFF & _FCMEN_OFF & _IESO_OFF & _BOR_NSLEEP & _CPD_OFF & _PGM_CP & _MCLRE_OFF & _PWRTE_ON & _WDT_OFF & _OSC_SRC
-__config    _CONFIG2, _WRT_HALF & _BOR21V _POSC_OFF_ & _SOSC_OFF_ & _RTCC_OFF_ & _AN01_ON_
-	
-	
+// ---------------------------------------------------------------------------------
+#include < xc.h > // Blog code Bug : Shorten spaces to match <xc.h>
+#include < plib.h > // Shorten spaces to match <plib.h> 
+#include < p32xxxx.h >  // Shorten spaces to match <p32xxxx.h>
+//#pragma config FPLLMUL = MUL_20, FPLLIDIV = DIV_2, FPLLODIV = DIV_2, FWDTEN = OFF
+//#pragma config POSCMOD = OFF, FNOSC = FRCPLL, FPBDIV = DIV_1
+#pragma config   JTAGEN    = OFF    // JTAG Enable OFF
+#pragma config   FNOSC     = FRCPLL // Fast RC w PLL 8mHz internal rc Osc
+#pragma config   FPLLIDIV  = DIV_2  // PLL in 8mHz/2 = 4mHz
+#pragma config   FPLLMUL   = MUL_20 // PLL mul 4mHz * 20 = 80mHz 24??
+#pragma config   FPLLODIV  = DIV_2  // PLL Out 8mHz/2= 40 mHz system frequency osc
+#pragma config   FPBDIV    = DIV_1  // Peripheral Bus Divisor
+#pragma config   FCKSM     = CSECME // Clock Switch Enable, FSCM Enabled
+#pragma config   POSCMOD   = OFF    // Primary osc disabled
+#pragma config   IESO      = OFF    // Internal/external switch over
+#pragma config   OSCIOFNC  = OFF    // CLKO Output Signal Active on the OSCO Pin
+#pragma config   FWDTEN    = OFF    // Watchdog Timer Enable:
+// add memory location for alert flag for tumble sensor
+// 
+#define GetSystemClock()       (40000000ul)
+#define GetPeripheralClock()    (GetSystemClock()/(1<<OSCCONbits.PBDIV))// 
+
+main(void){
+
 #define _XTAL_FREQ 800000L  // needs to be set for _delay_ms	
 
 unsigned int VAR; // loose variables for device - RM IF NOT USED
@@ -36,19 +44,18 @@ int main(void);
 
 int main(void) 
 {
-	OSCCON = 0x6C; 			// change to 40 MHz
+	OSCCON = 0x6C; 			// change primary oscillator to 40 MHz
+	
 	TRISA  = 0b00000001;    // enable Tri-state Buffer pin 1 - port A 
 	
 	
-	//    while (1); // while activation button is NOT held for 4 seconds
+	// while (1); // while activation button is NOT held for 4 seconds
 	// run the program while X input is not triggered
 	// when condition is met run shutdown of device
 	
 	// alternatively when button is held for 1 second 
 	// trigger startup procedure
 
-	// primary oscillator
-	OSCCON = 0x6C; //change to 20 MHz
 	
     // DIGITAL port assignments and control 
     TRISBbits.TRISB1 = 0;
@@ -81,13 +88,13 @@ int main(void)
     
 }
 
-
 int gps(void) { // function for GSR analog input
 
     return main;
 }
 
 int gsr(void) { // function for GSR analog input
+
 
     return main;
 }
